@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Presentation Practice</title>
+<style>
+:root{
+  --bg:#f4f6fb; --panel:#fff; --ink:#14213d; --muted:#667085; --line:#dfe4ee;
+  --accent:#1e3a8a; --accent-ink:#fff; --ok:#16a34a; --ok-bg:#e8f7ee; --bad:#dc2626; --bad-bg:#fdeceb;
+  --do:#b45309; --do-bg:#fff4e0; --cue-bg:#eef2ff;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0f1420; --panel:#181f2e; --ink:#e8ecf5; --muted:#96a0b5; --line:#2a3347;
+  --accent:#6d8dff; --accent-ink:#0b1020; --ok:#4ade80; --ok-bg:#12281b; --bad:#f87171; --bad-bg:#2e1616;
+  --do:#fbbf24; --do-bg:#2d2310; --cue-bg:#1d2540;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+header{position:sticky;top:0;z-index:5;background:var(--panel);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:6px 12px;font-size:14px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--bad)}
+.btn.on{background:var(--accent);color:var(--accent-ink)}
+.spacer{flex:1}
+#dots{display:flex;gap:6px;flex-wrap:wrap}
+.dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);background:var(--panel);font-size:13px;font-weight:600;display:grid;place-items:center;padding:0}
+.dot.cur{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.dot.done{background:var(--ok-bg);border-color:var(--ok)}
+.dot.miss{background:var(--bad-bg);border-color:var(--bad)}
+#score{font-size:14px;color:var(--muted)}
+#score b.ok{color:var(--ok)} #score b.bad{color:var(--bad)}
+main{max-width:1000px;margin:0 auto;padding:16px}
+.slidehead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.slidehead h1{font-size:20px;margin:0}
+.chip{font-size:13px;background:var(--cue-bg);color:var(--accent);padding:2px 10px;border-radius:99px;font-weight:600}
+.slideimg{display:block;margin:0 auto;max-width:100%;max-height:46vh;border:1px solid var(--line);border-radius:10px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0 10px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.card{background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-height:92px;text-align:left}
+.card.hidden{cursor:pointer;background:var(--cue-bg);border-style:dashed}
+.card.hidden:hover{border-color:var(--accent)}
+.card.ok{border-color:var(--ok);background:var(--ok-bg)}
+.card.bad{border-color:var(--bad);background:var(--bad-bg)}
+.cue{font-weight:700;display:flex;gap:8px;align-items:center;justify-content:space-between}
+.num{color:var(--muted);font-weight:600;font-size:13px;margin-right:6px}
+.tag{font-size:11px;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:99px;background:var(--cue-bg);color:var(--accent);white-space:nowrap}
+.tag.do{background:var(--do-bg);color:var(--do)}
+.reveal-hint{color:var(--muted);font-size:13px}
+.hintbtn{align-self:flex-start;margin-top:auto}
+.text{white-space:pre-wrap}
+.marks{display:flex;gap:8px;margin-top:auto}
+.mk{flex:1;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:5px;font-size:16px}
+.mk.ok.sel,.mk.ok:hover{background:var(--ok);color:#fff;border-color:var(--ok)}
+.mk.bad.sel,.mk.bad:hover{background:var(--bad);color:#fff;border-color:var(--bad)}
+/* edit mode */
+.edit input,.edit textarea,.edit select{width:100%;font:inherit;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+.edit textarea{min-height:110px;resize:vertical}
+.editrow{display:flex;gap:6px;align-items:center}
+.editrow.slide{margin-bottom:10px}
+.small{padding:3px 8px;font-size:13px}
+footer{max-width:1000px;margin:8px auto 40px;padding:0 16px;color:var(--muted);font-size:13px}
+kbd{border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;font-size:12px;background:var(--panel)}
+@media (max-width:640px){
+  body{font-size:15px}
+  header{position:static;padding:8px 10px;gap:8px}
+  #dots{order:3;width:100%;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
+  .dot{flex:0 0 34px;width:34px;height:34px}
+  #score{font-size:13px}
+  main{padding:10px}
+  .slideimg{max-height:none;width:100%}
+  .slidehead h1{font-size:18px}
+  .bar .btn{flex:1 1 45%;padding:10px 8px}
+  .cards{grid-template-columns:1fr}
+  .card{min-height:72px}
+  .mk{padding:10px;font-size:18px}
+  .hintbtn{padding:8px 14px}
+  .edit input,.edit textarea,.edit select{font-size:16px}
+  footer{display:none}
+}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <button class="btn" id="prev" title="Previous slide (←)">←</button>
+  <div id="dots"></div>
+  <button class="btn" id="next" title="Next slide (→)">→</button>
+  <span class="spacer"></span>
+  <span id="score"></span>
+  <button class="btn" id="editToggle">Edit script</button>
+</header>
+<main id="main"></main>
+<footer>Shortcuts: <kbd>←</kbd> <kbd>→</kbd> change slide · <kbd>Space</kbd> reveal next box · <kbd>C</kbd> mark ✓ · <kbd>X</kbd> mark ✗ (applies to the last box you revealed). Everything is saved in this browser automatically.</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+const VERSION = "__VERSION__";
+const DEFAULT_SLIDES = __DATA__;
+
+// ---------- state ----------
+const K = {content:"v5practice.content."+VERSION, marks:"v5practice.marks."+VERSION, cur:"v5practice.cur."+VERSION};
+const load = (k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}};
+const save = (k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const uid = ()=>Math.random().toString(36).slice(2,9);
+const clone = o=>JSON.parse(JSON.stringify(o));
+
+const withIds = slides => slides.map((s,i)=>({title:s.title,time:s.time,chunks:s.chunks.map((c,j)=>({id:c.id||`s${i}c${j}`,cue:c.cue,kind:c.kind,text:c.text}))}));
+let slides = load(K.content,null) || withIds(DEFAULT_SLIDES);
+// marks[slideIdx][chunkId] = {revealed:bool, mark:"ok"|"bad"|null}
+let marks = load(K.marks,{});
+let cur = Math.min(load(K.cur,0), slides.length-1);
+let editing = false;
+let lastRevealed = null;
+let allHints = load("v5practice.allhints",false);
+
+const st = (i,id)=>((marks[i]||{})[id])||{revealed:false,mark:null,hint:false};
+const setSt = (i,id,patch)=>{marks[i]=marks[i]||{};marks[i][id]=Object.assign(st(i,id),patch);save(K.marks,marks)};
+const persistContent = ()=>save(K.content,slides);
+
+// ---------- helpers ----------
+const $ = s=>document.querySelector(s);
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),1800)}
+const imgSrc = i=>`slides/slide-${String(i+1).padStart(2,"0")}.jpg`;
+
+function slideStats(i){
+  const cs = slides[i].chunks; let ok=0,bad=0,rev=0;
+  cs.forEach(c=>{const s=st(i,c.id); if(s.revealed)rev++; if(s.mark==="ok")ok++; if(s.mark==="bad")bad++;});
+  return {total:cs.length,ok,bad,rev};
+}
+
+// ---------- render ----------
+function render(){
+  renderHeader();
+  const s = slides[cur];
+  const m = $("#main");
+  const imgOk = cur < 99;
+  let h = "";
+  h += `<img class="slideimg" src="${imgSrc(cur)}" alt="Slide ${cur+1}">`;
+  h += `<div class="slidehead" style="margin-top:14px">`;
+  if(editing){
+    h += `<div class="editrow slide edit" style="flex:1"><input id="eTitle" value="${esc(s.title)}" aria-label="Slide title"><input id="eTime" value="${esc(s.time)}" style="max-width:240px" aria-label="Time"></div>`;
+  } else {
+    h += `<h1>${cur+1}. ${esc(s.title)}</h1><span class="chip">${esc(s.time)}</span>`;
+  }
+  h += `</div>`;
+  h += `<div class="bar">`;
+  if(editing){
+    h += `<button class="btn primary" id="addBox">+ Add box</button>
+          <button class="btn" id="exportBtn">Export script (JSON)</button>
+          <button class="btn" id="importBtn">Import script</button>
+          <button class="btn danger" id="restoreBtn">Restore original script</button>
+          <input type="file" id="importFile" accept="application/json" hidden>`;
+  } else {
+    h += `<button class="btn primary" id="revealAll">Reveal all</button>
+          <button class="btn" id="hideAll">Hide all</button>
+          <button class="btn${allHints?" on":""}" id="hintsAll">${allHints?"Hide all hints":"Show all hints"}</button>
+          <button class="btn danger" id="resetSlide">Reset this slide</button>
+          <button class="btn danger" id="resetAll">Reset everything</button>`;
+  }
+  h += `</div><div class="cards ${editing?"edit":""}">`;
+  s.chunks.forEach((c,j)=>{
+    const t = st(cur,c.id);
+    if(editing){
+      h += `<div class="card" data-j="${j}">
+        <div class="editrow"><span class="num">${j+1}</span>
+          <input data-f="cue" value="${esc(c.cue)}" placeholder="Cue (what you'll guess from)">
+          <select data-f="kind"><option value="say"${c.kind==="say"?" selected":""}>Say</option><option value="do"${c.kind==="do"?" selected":""}>Do</option></select></div>
+        <textarea data-f="text" placeholder="What you'll say / do">${esc(c.text)}</textarea>
+        <div class="editrow"><button class="btn small" data-act="up"${j===0?" disabled":""}>↑</button><button class="btn small" data-act="down"${j===s.chunks.length-1?" disabled":""}>↓</button><span class="spacer"></span><button class="btn small danger" data-act="del">Delete</button></div>
+      </div>`;
+    } else {
+      const cls = t.revealed ? (t.mark||"") : "hidden";
+      const showCue = t.revealed || t.hint || allHints;
+      h += `<div class="card ${cls}" data-j="${j}"${t.revealed?"":' role="button" tabindex="0"'}>
+        <div class="cue"><span><span class="num">${j+1}</span>${showCue?esc(c.cue):""}</span>${showCue?`<span class="tag ${c.kind}">${c.kind==="do"?"Do":"Say"}</span>`:""}</div>`;
+      if(t.revealed){
+        h += `<div class="text">${esc(c.text)}</div>
+        <div class="marks"><button class="mk ok${t.mark==="ok"?" sel":""}" data-act="ok" title="Got it (C)">✓</button><button class="mk bad${t.mark==="bad"?" sel":""}" data-act="bad" title="Missed it (X)">✗</button></div>`;
+      } else {
+        h += `<div class="reveal-hint">Click to reveal</div>${showCue?"":`<button class="btn small hintbtn" data-act="hint">Hint</button>`}`;
+      }
+      h += `</div>`;
+    }
+  });
+  h += `</div>`;
+  m.innerHTML = h;
+  bind();
+}
+
+function renderHeader(){
+  $("#dots").innerHTML = slides.map((s,i)=>{
+    const x = slideStats(i);
+    const cls = (i===cur?"cur ":"") + (x.rev===x.total&&x.bad===0&&x.ok===x.total?"done ":"") + (x.bad>0?"miss":"");
+    return `<button class="dot ${cls}" data-i="${i}" title="${esc(s.title)}">${i+1}</button>`;
+  }).join("");
+  document.querySelectorAll(".dot").forEach(d=>d.onclick=()=>go(+d.dataset.i));
+  let ok=0,bad=0,total=0;
+  slides.forEach((_,i)=>{const x=slideStats(i);ok+=x.ok;bad+=x.bad;total+=x.total});
+  $("#score").innerHTML = `<b class="ok">✓ ${ok}</b> · <b class="bad">✗ ${bad}</b> · ${total-ok-bad} unmarked`;
+  $("#editToggle").textContent = editing ? "Done editing" : "Edit script";
+  $("#editToggle").classList.toggle("on",editing);
+}
+
+function bind(){
+  const s = slides[cur];
+  if(editing){
+    $("#eTitle").oninput=e=>{s.title=e.target.value;persistContent();renderHeader()};
+    $("#eTime").oninput=e=>{s.time=e.target.value;persistContent()};
+    $("#addBox").onclick=()=>{s.chunks.push({id:uid(),cue:"New box",kind:"say",text:""});persistContent();render();window.scrollTo(0,document.body.scrollHeight)};
+    $("#exportBtn").onclick=exportJSON;
+    $("#importBtn").onclick=()=>$("#importFile").click();
+    $("#importFile").onchange=importJSON;
+    $("#restoreBtn").onclick=()=>{if(confirm("Replace your edited script with the original? Your edits will be lost.")){slides=withIds(DEFAULT_SLIDES);marks={};persistContent();save(K.marks,marks);render();toast("Original script restored")}};
+    document.querySelectorAll(".card").forEach(card=>{
+      const j=+card.dataset.j;
+      card.querySelectorAll("[data-f]").forEach(el=>el.oninput=()=>{s.chunks[j][el.dataset.f]=el.value;persistContent()});
+      card.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{
+        const a=b.dataset.act;
+        if(a==="up"&&j>0)[s.chunks[j-1],s.chunks[j]]=[s.chunks[j],s.chunks[j-1]];
+        if(a==="down"&&j<s.chunks.length-1)[s.chunks[j+1],s.chunks[j]]=[s.chunks[j],s.chunks[j+1]];
+        if(a==="del"){if(!confirm("Delete this box?"))return;s.chunks.splice(j,1)}
+        persistContent();render();
+      });
+    });
+    return;
+  }
+  $("#revealAll").onclick=()=>{s.chunks.forEach(c=>setSt(cur,c.id,{revealed:true}));render()};
+  $("#hideAll").onclick=()=>{s.chunks.forEach(c=>setSt(cur,c.id,{revealed:false}));render()};
+  $("#hintsAll").onclick=()=>{allHints=!allHints;save("v5practice.allhints",allHints);render()};
+  $("#resetSlide").onclick=()=>{delete marks[cur];save(K.marks,marks);lastRevealed=null;render();toast("Slide reset")};
+  $("#resetAll").onclick=()=>{if(confirm("Reset every slide's reveals and checkmarks?")){marks={};save(K.marks,marks);lastRevealed=null;render();toast("Everything reset")}};
+  document.querySelectorAll(".card").forEach(card=>{
+    const j=+card.dataset.j, c=s.chunks[j];
+    if(card.classList.contains("hidden")){
+      const hb=card.querySelector('[data-act="hint"]');
+      if(hb)hb.onclick=e=>{e.stopPropagation();setSt(cur,c.id,{hint:true});render()};
+      const reveal=()=>{setSt(cur,c.id,{revealed:true});lastRevealed=c.id;render()};
+      card.onclick=reveal;
+      card.onkeydown=e=>{if(e.key==="Enter"&&e.target===card){e.preventDefault();reveal()}};
+    }
+    card.querySelectorAll(".mk").forEach(b=>b.onclick=e=>{
+      e.stopPropagation();
+      const want=b.dataset.act, now=st(cur,c.id).mark;
+      setSt(cur,c.id,{mark:now===want?null:want});render();
+    });
+  });
+}
+
+function go(i){
+  if(i<0||i>=slides.length)return;
+  cur=i;save(K.cur,cur);lastRevealed=null;render();window.scrollTo(0,0);
+}
+
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(slides,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="v5-script.json";a.click();
+}
+function importJSON(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{
+    const d=JSON.parse(r.result);
+    if(!Array.isArray(d)||!d.every(s=>s.title&&Array.isArray(s.chunks)))throw 0;
+    slides=d.map(s=>({title:s.title,time:s.time||"",chunks:s.chunks.map(c=>({id:c.id||uid(),cue:c.cue||"",kind:c.kind==="do"?"do":"say",text:c.text||""}))}));
+    marks={};persistContent();save(K.marks,marks);cur=0;render();toast("Script imported");
+  }catch(_){toast("That file isn't a valid script")}};
+  r.readAsText(f);
+}
+
+// ---------- events ----------
+$("#prev").onclick=()=>go(cur-1);
+$("#next").onclick=()=>go(cur+1);
+$("#editToggle").onclick=()=>{editing=!editing;render()};
+document.addEventListener("keydown",e=>{
+  if(editing||/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)||e.metaKey||e.ctrlKey||e.altKey)return;
+  const s=slides[cur];
+  if(e.key==="ArrowRight")go(cur+1);
+  else if(e.key==="ArrowLeft")go(cur-1);
+  else if(e.key===" "){
+    e.preventDefault();
+    const c=s.chunks.find(c=>!st(cur,c.id).revealed);
+    if(c){setSt(cur,c.id,{revealed:true});lastRevealed=c.id;render()}
+  }
+  else if((e.key==="c"||e.key==="x")&&lastRevealed&&s.chunks.some(c=>c.id===lastRevealed)){
+    const want=e.key==="c"?"ok":"bad";
+    setSt(cur,lastRevealed,{mark:st(cur,lastRevealed).mark===want?null:want});render();
+  }
+});
+
+render();
+</script>
+</body>
+</html>
