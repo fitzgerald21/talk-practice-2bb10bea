@@ -66,6 +66,7 @@ kbd{border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;paddi
 @media (max-width:640px){
   body{font-size:15px}
   header{position:static;padding:8px 10px;gap:8px}
+  #timer{font-size:26px}
   #dots{order:3;width:100%;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
   .dot{flex:0 0 34px;width:34px;height:34px}
   #score{font-size:13px}
@@ -82,10 +83,18 @@ kbd{border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;paddi
 }
 .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}
 .toast.show{opacity:1}
+#timerbar{flex:1 0 100%;display:flex;gap:8px;align-items:center;justify-content:center}
+#timer{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;min-width:96px;text-align:center}
+#timerbar .btn{padding:8px 14px}
 </style>
 </head>
 <body>
 <header>
+  <div id="timerbar">
+    <span id="timer" aria-live="off">0:00</span>
+    <button class="btn primary" id="tStart">Start</button>
+    <button class="btn" id="tReset">Reset</button>
+  </div>
   <button class="btn" id="prev" title="Previous slide (←)">←</button>
   <div id="dots"></div>
   <button class="btn" id="next" title="Next slide (→)">→</button>
@@ -293,6 +302,27 @@ document.addEventListener("keydown",e=>{
 });
 
 render();
+
+/* stopwatch: survives reloads; elapsed = banked + (now - startedAt) */
+(function(){
+  const KEY="timerState";let t={banked:0,startedAt:null};
+  try{t=Object.assign(t,JSON.parse(localStorage.getItem(KEY)||"{}"))}catch(e){}
+  const el=document.getElementById("timer"),btn=document.getElementById("tStart");
+  const elapsed=()=>t.banked+(t.startedAt?Date.now()-t.startedAt:0);
+  const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(t))}catch(e){}};
+  function draw(){
+    const s=Math.floor(elapsed()/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),sec=s%60;
+    el.textContent=(h?h+":"+String(m).padStart(2,"0"):m)+":"+String(sec).padStart(2,"0");
+    btn.textContent=t.startedAt?"Stop":(t.banked?"Resume":"Start");
+    btn.classList.toggle("primary",!t.startedAt);
+  }
+  btn.onclick=()=>{
+    if(t.startedAt){t.banked+=Date.now()-t.startedAt;t.startedAt=null}else t.startedAt=Date.now();
+    persist();draw();btn.blur();
+  };
+  document.getElementById("tReset").onclick=()=>{t={banked:0,startedAt:null};persist();draw();document.activeElement.blur()};
+  setInterval(draw,250);draw();
+})();
 </script>
 </body>
 </html>
